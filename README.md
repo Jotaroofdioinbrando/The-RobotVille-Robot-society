@@ -1,7 +1,7 @@
 # Robotville
 
 Uma vila de sobrevivência onde 3 agentes de IA autônomos — um rodando na **Cerebras**,
-um na **Groq** e um na **OpenAI (GPT)** — vivem, tomam decisões e interagem entre si.
+um na **Groq** e um no **Gemini** — vivem, tomam decisões e interagem entre si.
 Cada um só age com base no que **observou diretamente** ou no que **outro agente contou**
 (boato) — nunca com acesso ao estado completo do mundo. Isso é a parte de "lógica epistêmica":
 eles distinguem conhecimento de crença.
@@ -88,7 +88,7 @@ registro de eventos. A página atualiza sozinha a cada 6 segundos.
 ## Estrutura
 - `lib/world.js` — grade, terrenos, estado inicial
 - `lib/agents.js` — persona e configuração de cada provedor
-- `lib/llm.js` — chamador genérico (Cerebras/Groq/OpenAI usam a mesma forma de API)
+- `lib/llm.js` — chamador genérico pra Cerebras/Groq (mesmo formato de API da OpenAI) + um chamador específico pro Gemini
 - `lib/tick.js` — motor da simulação: visão, memória, prompt, aplicação das ações
 - `app/api/tick` — avança 1 ciclo (protegido por `TICK_SECRET`)
 - `app/api/state` — estado atual pro front-end
@@ -102,7 +102,7 @@ Pra mudar a velocidade da vila, edite o cron em `.github/workflows/tick.yml`
 garante bem intervalos menores que 5 min).
 
 ## Limitações conhecidas
-- Nomes de modelo (`CEREBRAS_MODEL`, `GROQ_MODEL`, `OPENAI_MODEL`) podem mudar com o
+- Nomes de modelo (`CEREBRAS_MODEL`, `GROQ_MODEL`, `GEMINI_MODEL`) podem mudar com o
   tempo — se algum provedor retornar erro de "modelo não encontrado", troque o valor
   no `.env`/Vercel pelo nome atual listado no painel do provedor.
 - A simulação processa os 3 agentes em paralelo a cada ciclo (todos veem o mesmo
