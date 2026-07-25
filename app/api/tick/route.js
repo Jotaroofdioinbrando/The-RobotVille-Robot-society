@@ -3,6 +3,7 @@ import { initialWorld } from "../../../lib/world";
 import { runTick } from "../../../lib/tick";
 
 export const maxDuration = 60;
+export const dynamic = "force-dynamic";
 
 function checkSecret(req) {
   const header = req.headers.get("x-tick-secret");

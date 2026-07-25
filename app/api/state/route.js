@@ -1,5 +1,7 @@
 import { redis, WORLD_KEY } from "../../../lib/redis";
 import { initialWorld } from "../../../lib/world";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET() {
   let world = await redis.get(WORLD_KEY);

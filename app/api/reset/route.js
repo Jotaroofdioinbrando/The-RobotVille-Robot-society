@@ -1,5 +1,6 @@
 import { redis, WORLD_KEY } from "../../../lib/redis";
 import { initialWorld } from "../../../lib/world";
+export const dynamic = "force-dynamic";
 
 function checkSecret(req) {
   const header = req.headers.get("x-tick-secret");
