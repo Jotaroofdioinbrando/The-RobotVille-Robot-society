@@ -156,12 +156,12 @@ export default function Home() {
                 <div
                   className="mono"
                   style={{
-                    width: 18,
+                    width: 22,
                     height: 18,
                     borderRadius: 9,
                     background: a.color,
                     color: "#111",
-                    fontSize: 9,
+                    fontSize: 8,
                     fontWeight: 700,
                     display: "flex",
                     alignItems: "center",
@@ -169,8 +169,9 @@ export default function Home() {
                     border: "2px solid rgba(0,0,0,0.4)",
                   }}
                 >
-                  {a.name.slice(0, 1)}
+                  {a.name.slice(0, 2)}
                 </div>
+
                 {a.lastActionType && ACTION_ICON[a.lastActionType] && (
                   <div style={{ position: "absolute", top: -14, fontSize: 12 }}>{ACTION_ICON[a.lastActionType]}</div>
                 )}
