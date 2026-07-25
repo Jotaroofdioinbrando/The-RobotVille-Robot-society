@@ -61,7 +61,7 @@ export default function Home() {
       }
     }
     poll();
-    timerRef.current = setInterval(poll, 6000);
+    timerRef.current = setInterval(poll, 3000);
     return () => clearInterval(timerRef.current);
   }, []);
 
