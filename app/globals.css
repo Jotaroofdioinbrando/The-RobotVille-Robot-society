@@ -1,0 +1,54 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+:root {
+  --bg: #1b2430;
+  --panel: #232e3d;
+  --panel-raised: #2b3a4c;
+  --hairline: rgba(237, 231, 221, 0.1);
+  --text: #ede7dd;
+  --muted: #8394a1;
+  --copper: #c97a4a;
+  --cyan: #5ec8d8;
+  --danger: #ff6b6b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", sans-serif;
+}
+
+.mono {
+  font-family: "IBM Plex Mono", monospace;
+}
+.display {
+  font-family: "Space Grotesk", sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--panel-raised);
+  border-radius: 4px;
+}
+
+.bar-bg {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  overflow: hidden;
+  height: 6px;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.4s ease;
+}
