@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { GRID_SIZE, terrainAt } from "../lib/world";
 
-const GRID_SIZE = 16;
-const TILE = 26;
+const TILE = 22;
 
 const TERRAIN_STYLE = {
   aldeia: { bg: "#3a2e22", label: "vila" },
@@ -20,6 +20,7 @@ const ACTION_ICON = {
   comer: "🍖",
   plantar: "🌱",
   colher: "🌾",
+  construir: "🏠",
   dar: "🤝",
   roubar: "🕵️",
   atacar: "⚔️",
@@ -27,13 +28,6 @@ const ACTION_ICON = {
   mover: "➡️",
   esperar: "…",
 };
-
-function terrainAt(x, y) {
-  if (x <= 2 && y <= 2) return "floresta";
-  if (x >= 13 && y >= 13) return "rio";
-  if (x >= 6 && x <= 9 && y >= 6 && y <= 9) return "aldeia";
-  return "planicie";
-}
 
 function Bar({ value, color }) {
   return (
@@ -72,6 +66,7 @@ export default function Home() {
       const style = TERRAIN_STYLE[t];
       const tree = world?.trees?.[`${x},${y}`];
       const crop = world?.crops?.find((c) => c.x === x && c.y === y);
+      const structure = world?.structures?.find((s) => s.x === x && s.y === y);
       tiles.push(
         <div
           key={`${x}-${y}`}
@@ -89,6 +84,7 @@ export default function Home() {
         >
           {t === "floresta" && tree && tree.wood > 0 ? "🌳" : ""}
           {crop ? (crop.ready ? "🌾" : "🌱") : ""}
+          {structure ? "🏠" : ""}
         </div>
       );
     }
