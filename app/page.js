@@ -26,6 +26,7 @@ const ACTION_ICON = {
   atacar: "⚔️",
   falar: "💬",
   mover: "➡️",
+  correr: "🏃",
   esperar: "…",
 };
 
