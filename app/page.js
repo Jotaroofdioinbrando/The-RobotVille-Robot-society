@@ -40,6 +40,7 @@ function Bar({ value, color }) {
 export default function Home() {
   const [world, setWorld] = useState(null);
   const [error, setError] = useState(null);
+  const [copyStatus, setCopyStatus] = useState(null);
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -242,8 +243,35 @@ export default function Home() {
         </section>
 
         <section style={{ flex: "1 1 260px", minWidth: 260 }}>
-          <div className="display" style={{ fontWeight: 700, marginBottom: 8 }}>
-            Registro do enxame
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+            <div className="display" style={{ fontWeight: 700 }}>
+              Registro do enxame
+            </div>
+            <button
+              onClick={() => {
+                const text = [...(world?.events || [])]
+                  .reverse()
+                  .map((e) => `#${e.tick} ${e.text}`)
+                  .join("\n");
+                navigator.clipboard
+                  .writeText(text)
+                  .then(() => setCopyStatus("Copiado!"))
+                  .catch(() => setCopyStatus("Falhou ao copiar"));
+                setTimeout(() => setCopyStatus(null), 2000);
+              }}
+              className="mono"
+              style={{
+                fontSize: 11,
+                padding: "4px 10px",
+                borderRadius: 6,
+                background: "var(--panel)",
+                border: "1px solid var(--hairline)",
+                color: "var(--text)",
+                cursor: "pointer",
+              }}
+            >
+              {copyStatus || "copiar tudo"}
+            </button>
           </div>
           <div
             style={{
