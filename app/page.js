@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { GRID_SIZE, terrainAt } from "../lib/world";
 
-const GRID_SIZE = 16;
-const TILE = 26;
+const TILE = 22;
 
 const TERRAIN_STYLE = {
   aldeia: { bg: "#3a2e22", label: "vila" },
@@ -20,6 +20,7 @@ const ACTION_ICON = {
   comer: "🍖",
   plantar: "🌱",
   colher: "🌾",
+  construir: "🏠",
   dar: "🤝",
   roubar: "🕵️",
   atacar: "⚔️",
@@ -27,13 +28,6 @@ const ACTION_ICON = {
   mover: "➡️",
   esperar: "…",
 };
-
-function terrainAt(x, y) {
-  if (x <= 2 && y <= 2) return "floresta";
-  if (x >= 13 && y >= 13) return "rio";
-  if (x >= 6 && x <= 9 && y >= 6 && y <= 9) return "aldeia";
-  return "planicie";
-}
 
 function Bar({ value, color }) {
   return (
@@ -61,7 +55,7 @@ export default function Home() {
       }
     }
     poll();
-    timerRef.current = setInterval(poll, 3000);
+    timerRef.current = setInterval(poll, 6000);
     return () => clearInterval(timerRef.current);
   }, []);
 
@@ -72,6 +66,7 @@ export default function Home() {
       const style = TERRAIN_STYLE[t];
       const tree = world?.trees?.[`${x},${y}`];
       const crop = world?.crops?.find((c) => c.x === x && c.y === y);
+      const structure = world?.structures?.find((s) => s.x === x && s.y === y);
       tiles.push(
         <div
           key={`${x}-${y}`}
@@ -89,10 +84,23 @@ export default function Home() {
         >
           {t === "floresta" && tree && tree.wood > 0 ? "🌳" : ""}
           {crop ? (crop.ready ? "🌾" : "🌱") : ""}
+          {structure ? "🏠" : ""}
         </div>
       );
     }
   }
+
+  const tileGroups = {};
+  (world?.agents || []).forEach((a) => {
+    const key = `${a.x},${a.y}`;
+    tileGroups[key] = tileGroups[key] || [];
+    tileGroups[key].push(a.id);
+  });
+  const OFFSETS = [
+    { dx: 0, dy: 0 },
+    { dx: 9, dy: -9 },
+    { dx: -9, dy: 9 },
+  ];
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
@@ -136,14 +144,19 @@ export default function Home() {
             }}
           >
             {tiles}
-            {world?.agents?.map((a) => (
+            {world?.agents?.map((a) => {
+              const key = `${a.x},${a.y}`;
+              const group = tileGroups[key] || [a.id];
+              const idx = group.indexOf(a.id);
+              const off = OFFSETS[idx % OFFSETS.length];
+              return (
               <div
                 key={a.id}
                 title={`${a.name} — ${a.lastAction || ""}`}
                 style={{
                   position: "absolute",
-                  left: a.x * TILE,
-                  top: a.y * TILE,
+                  left: a.x * TILE + off.dx,
+                  top: a.y * TILE + off.dy,
                   width: TILE,
                   height: TILE,
                   display: "flex",
@@ -156,12 +169,12 @@ export default function Home() {
                 <div
                   className="mono"
                   style={{
-                    width: 18,
+                    width: 22,
                     height: 18,
                     borderRadius: 9,
                     background: a.color,
                     color: "#111",
-                    fontSize: 9,
+                    fontSize: 8,
                     fontWeight: 700,
                     display: "flex",
                     alignItems: "center",
@@ -169,13 +182,14 @@ export default function Home() {
                     border: "2px solid rgba(0,0,0,0.4)",
                   }}
                 >
-                  {a.name.slice(0, 1)}
+                  {a.name.slice(0, 2)}
                 </div>
                 {a.lastActionType && ACTION_ICON[a.lastActionType] && (
                   <div style={{ position: "absolute", top: -14, fontSize: 12 }}>{ACTION_ICON[a.lastActionType]}</div>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
           <div className="mono" style={{ color: "var(--muted)", fontSize: 11, marginTop: 8 }}>
             🌳 floresta (madeira) · canto superior-esquerdo &nbsp;|&nbsp; 🚰 rio · canto inferior-direito &nbsp;|&nbsp; vila ao centro
