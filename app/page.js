@@ -234,6 +234,7 @@ function RobotIcon({ color, alive }) {
 // no id/nome do agente, então funciona não importa a capitalização exata que
 // vier do backend (ex: "openrouter", "OPENROUTER", "vila1-openrouter" etc.).
 const SPRITE_BY_KEY = {
+  cerebras: "/sprites/openrouter.png",
   openrouter: "/sprites/openrouter.png",
   mistral: "/sprites/mistral.png",
   gemini: "/sprites/gemini.png",
@@ -562,6 +563,22 @@ export default function Home() {
                   <div className="display" style={{ fontWeight: 700, color: a.color }}>
                     {a.name} {!a.alive && "☠️"}
                   </div>
+                  {a.activeMindVibe && a.activeMindVibe !== "neutro" && (
+                    <span
+                      className="mono"
+                      style={{
+                        fontSize: 9,
+                        padding: "1px 6px",
+                        borderRadius: 8,
+                        background: "var(--panel-raised)",
+                        color: "var(--muted)",
+                        border: "1px solid var(--hairline)",
+                      }}
+                      title="Qual consciência está no controle deste corpo agora"
+                    >
+                      🧠 {a.activeMindVibe}
+                    </span>
+                  )}
                 </div>
                 <div className="mono" style={{ fontSize: 10, color: "var(--muted)" }}>
                   ({a.x},{a.y})
