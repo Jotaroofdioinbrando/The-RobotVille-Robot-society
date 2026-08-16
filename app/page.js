@@ -67,6 +67,63 @@ function Bar({ value, color }) {
   );
 }
 
+function RobotIcon({ color, alive }) {
+  const visor = alive ? "#eafcff" : "#5a6570";
+  const chest = alive ? "#ffffff" : "#4a525c";
+  return (
+    <svg width="30" height="30" viewBox="0 0 24 24" style={{ filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.55))" }}>
+      {/* antena */}
+      <line x1="12" y1="1.5" x2="12" y2="4" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
+      <circle cx="12" cy="1.2" r="1.1" fill={alive ? color : "#5a6570"} />
+      {/* corpo/ombros */}
+      <rect x="5" y="14" width="14" height="8" rx="4" fill={color} stroke="#161f2b" strokeWidth="1" />
+      <circle cx="12" cy="17.5" r="1.15" fill={chest} className={alive ? "pulse-dot" : ""} />
+      {/* cabeça */}
+      <rect x="6" y="4.2" width="12" height="10.2" rx="3.4" fill={color} stroke="#161f2b" strokeWidth="1" />
+      {/* orelhas/módulos laterais */}
+      <circle cx="4.6" cy="9.2" r="1.6" fill={color} stroke="#161f2b" strokeWidth="0.8" />
+      <circle cx="19.4" cy="9.2" r="1.6" fill={color} stroke="#161f2b" strokeWidth="0.8" />
+      {/* visor */}
+      <rect x="8" y="8.1" width="8" height="2.6" rx="1.3" fill={visor} />
+    </svg>
+  );
+}
+
+// Sprites pixel-art (gerados por IA) pra cada agente. A busca é por substring
+// no id/nome do agente, então funciona não importa a capitalização exata que
+// vier do backend (ex: "cerebras", "CEREBRAS", "vila1-cerebras" etc.).
+const SPRITE_BY_KEY = {
+  cerebras: "/sprites/cerebras.png",
+  mistral: "/sprites/mistral.png",
+  gemini: "/sprites/gemini.png",
+};
+
+function spriteFor(agent) {
+  const key = `${agent?.id || ""} ${agent?.name || ""}`.toLowerCase();
+  for (const k of Object.keys(SPRITE_BY_KEY)) {
+    if (key.includes(k)) return SPRITE_BY_KEY[k];
+  }
+  return null;
+}
+
+function AgentSprite({ agent, size = 34 }) {
+  const src = spriteFor(agent);
+  if (!src) return <RobotIcon color={agent.color} alive={agent.alive} />;
+  return (
+    <img
+      src={src}
+      alt={agent.name}
+      draggable={false}
+      style={{
+        height: size,
+        width: "auto",
+        imageRendering: "pixelated",
+        filter: agent.alive ? "drop-shadow(0 2px 3px rgba(0,0,0,0.55))" : "grayscale(1) drop-shadow(0 2px 3px rgba(0,0,0,0.55))",
+      }}
+    />
+  );
+}
+
 export default function Home() {
   const [world, setWorld] = useState(null);
   const [error, setError] = useState(null);
@@ -215,39 +272,30 @@ export default function Home() {
                     title={`${a.name} — ${a.lastAction || ""}`}
                     style={{
                       position: "absolute",
-                      left: a.x * TILE + off.dx,
-                      top: a.y * TILE + off.dy,
-                      width: TILE,
-                      height: TILE,
+                      left: a.x * TILE + off.dx - 4,
+                      top: a.y * TILE + off.dy - 4,
+                      width: TILE + 8,
+                      height: TILE + 8,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       transition: "left 0.6s ease, top 0.6s ease",
-                      opacity: a.alive ? 1 : 0.35,
+                      opacity: a.alive ? 1 : 0.4,
                       filter: a.alive ? "none" : "grayscale(1)",
                     }}
                   >
                     <div
-                      className="mono"
                       style={{
-                        width: 22,
-                        height: 18,
-                        borderRadius: 9,
-                        background: a.color,
-                        color: "#111",
-                        fontSize: 8,
-                        fontWeight: 700,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        border: "2px solid rgba(0,0,0,0.45)",
-                        boxShadow: `0 0 0 2px ${a.color}55, 0 2px 6px rgba(0,0,0,0.5)`,
+                        position: "absolute",
+                        width: 26,
+                        height: 26,
+                        borderRadius: "50%",
+                        background: `radial-gradient(circle, ${a.color}40 0%, transparent 70%)`,
                       }}
-                    >
-                      {a.name.slice(0, 2)}
-                    </div>
+                    />
+                    <AgentSprite agent={a} size={34} />
                     {a.lastActionType && ACTION_ICON[a.lastActionType] && (
-                      <div style={{ position: "absolute", top: -14, fontSize: 12, filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.6))" }}>
+                      <div style={{ position: "absolute", top: -12, fontSize: 12, filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.6))" }}>
                         {ACTION_ICON[a.lastActionType]}
                       </div>
                     )}
@@ -283,8 +331,25 @@ export default function Home() {
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div className="display" style={{ fontWeight: 700, color: a.color }}>
-                  {a.name} {!a.alive && "☠️"}
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div
+                    style={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: 8,
+                      background: "rgba(0,0,0,0.25)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      overflow: "hidden",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <AgentSprite agent={a} size={30} />
+                  </div>
+                  <div className="display" style={{ fontWeight: 700, color: a.color }}>
+                    {a.name} {!a.alive && "☠️"}
+                  </div>
                 </div>
                 <div className="mono" style={{ fontSize: 10, color: "var(--muted)" }}>
                   ({a.x},{a.y})
