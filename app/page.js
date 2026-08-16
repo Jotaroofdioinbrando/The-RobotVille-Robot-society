@@ -1,33 +1,62 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { GRID_SIZE, terrainAt } from "../lib/world";
+import { GRID_SIZE, terrainAt, isNight } from "../lib/world";
 
 const TILE = 22;
 
 const TERRAIN_STYLE = {
-  aldeia: { bg: "#3a2e22", label: "vila" },
-  floresta: { bg: "#152a1d", label: "floresta" },
-  rio: { bg: "#1f4a5c", label: "rio" },
-  planicie: { bg: "#333d29", label: "planície" },
+  aldeia: { bg: "linear-gradient(155deg, #4a3a28 0%, #372a1c 100%)", label: "vila" },
+  floresta: { bg: "linear-gradient(155deg, #1c3324 0%, #0f2117 100%)", label: "floresta" },
+  rio: { bg: "linear-gradient(155deg, #2a5f78 0%, #163a4a 100%)", label: "rio" },
+  planicie: { bg: "linear-gradient(155deg, #3d4a30 0%, #2c3722 100%)", label: "planície" },
 };
 
 const ACTION_ICON = {
   cortar_madeira: "🪓",
   cacar: "🏹",
+  pescar: "🎣",
   beber: "💧",
   encher_cantil: "🚰",
   comer: "🍖",
   plantar: "🌱",
   colher: "🌾",
-  construir: "🏠",
+  construir: "🏗️",
   dar: "🤝",
   roubar: "🕵️",
   atacar: "⚔️",
   falar: "💬",
+  confraternizar: "🔥",
   mover: "➡️",
   correr: "🏃",
   esperar: "…",
+};
+
+const STRUCTURE_ICON = {
+  abrigo: "⛺",
+  casa: "🏠",
+  cerca: "🚧",
+  fogueira: "🔥",
+  poco: "⛲",
+  celeiro: "🌾",
+  curral: "🐄",
+  viveiro: "🐟",
+  horta: "🥕",
+  estufa: "🪴",
+  moinho: "⚙️",
+  serraria: "🪚",
+  ferraria: "⚒️",
+  mercado: "🛒",
+  armazem: "📦",
+  torre_vigia: "🗼",
+  farol: "🚨",
+  muralha: "🧱",
+  torre_guarda: "🛡️",
+  hospital: "⚕️",
+  templo: "⛩️",
+  praca: "🪑",
+  cemiterio: "⚰️",
+  cais: "⚓",
 };
 
 function Bar({ value, color }) {
@@ -61,6 +90,8 @@ export default function Home() {
     return () => clearInterval(timerRef.current);
   }, []);
 
+  const night = world ? isNight(world.tick) : false;
+
   const tiles = [];
   for (let y = 0; y < GRID_SIZE; y++) {
     for (let x = 0; x < GRID_SIZE; x++) {
@@ -72,12 +103,12 @@ export default function Home() {
       tiles.push(
         <div
           key={`${x}-${y}`}
-          title={`${style.label} (${x},${y})`}
+          title={`${style.label} (${x},${y})${structure ? ` — ${structure.type}` : ""}`}
           style={{
             width: TILE,
             height: TILE,
             background: style.bg,
-            border: "1px solid rgba(0,0,0,0.25)",
+            boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.18)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -86,7 +117,7 @@ export default function Home() {
         >
           {t === "floresta" && tree && tree.wood > 0 ? "🌳" : ""}
           {crop ? (crop.ready ? "🌾" : "🌱") : ""}
-          {structure ? "🏠" : ""}
+          {structure ? STRUCTURE_ICON[structure.type] || "🏗️" : ""}
         </div>
       );
     }
@@ -135,66 +166,108 @@ export default function Home() {
         <section style={{ overflowX: "auto" }}>
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: `repeat(${GRID_SIZE}, ${TILE}px)`,
-              gridTemplateRows: `repeat(${GRID_SIZE}, ${TILE}px)`,
-              position: "relative",
-              width: GRID_SIZE * TILE,
-              borderRadius: 8,
-              overflow: "hidden",
+              background: "var(--panel)",
               border: "1px solid var(--hairline)",
+              borderRadius: 12,
+              padding: 14,
+              display: "inline-block",
             }}
           >
-            {tiles}
-            {world?.agents?.map((a) => {
-              const key = `${a.x},${a.y}`;
-              const group = tileGroups[key] || [a.id];
-              const idx = group.indexOf(a.id);
-              const off = OFFSETS[idx % OFFSETS.length];
-              return (
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+              <div className="display" style={{ fontWeight: 700, fontSize: 14 }}>
+                Mapa de Robotville
+              </div>
+              <div className="mono" style={{ fontSize: 11, color: "var(--muted)", display: "flex", alignItems: "center", gap: 6 }}>
+                <span>{night ? "🌙 noite" : "☀️ dia"}</span>
+              </div>
+            </div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: `repeat(${GRID_SIZE}, ${TILE}px)`,
+                gridTemplateRows: `repeat(${GRID_SIZE}, ${TILE}px)`,
+                position: "relative",
+                width: GRID_SIZE * TILE,
+                borderRadius: 8,
+                overflow: "hidden",
+                boxShadow: "0 0 0 1px var(--hairline), 0 8px 24px rgba(0,0,0,0.35)",
+              }}
+            >
+              {tiles}
               <div
-                key={a.id}
-                title={`${a.name} — ${a.lastAction || ""}`}
                 style={{
                   position: "absolute",
-                  left: a.x * TILE + off.dx,
-                  top: a.y * TILE + off.dy,
-                  width: TILE,
-                  height: TILE,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: "left 0.6s ease, top 0.6s ease",
-                  opacity: a.alive ? 1 : 0.3,
+                  inset: 0,
+                  pointerEvents: "none",
+                  background: "linear-gradient(155deg, rgba(20,30,55,0.38), rgba(10,14,26,0.5))",
+                  opacity: night ? 1 : 0,
+                  transition: "opacity 1.2s ease",
                 }}
-              >
-                <div
-                  className="mono"
-                  style={{
-                    width: 22,
-                    height: 18,
-                    borderRadius: 9,
-                    background: a.color,
-                    color: "#111",
-                    fontSize: 8,
-                    fontWeight: 700,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    border: "2px solid rgba(0,0,0,0.4)",
-                  }}
-                >
-                  {a.name.slice(0, 2)}
+              />
+              {world?.agents?.map((a) => {
+                const key = `${a.x},${a.y}`;
+                const group = tileGroups[key] || [a.id];
+                const idx = group.indexOf(a.id);
+                const off = OFFSETS[idx % OFFSETS.length];
+                return (
+                  <div
+                    key={a.id}
+                    title={`${a.name} — ${a.lastAction || ""}`}
+                    style={{
+                      position: "absolute",
+                      left: a.x * TILE + off.dx,
+                      top: a.y * TILE + off.dy,
+                      width: TILE,
+                      height: TILE,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      transition: "left 0.6s ease, top 0.6s ease",
+                      opacity: a.alive ? 1 : 0.35,
+                      filter: a.alive ? "none" : "grayscale(1)",
+                    }}
+                  >
+                    <div
+                      className="mono"
+                      style={{
+                        width: 22,
+                        height: 18,
+                        borderRadius: 9,
+                        background: a.color,
+                        color: "#111",
+                        fontSize: 8,
+                        fontWeight: 700,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        border: "2px solid rgba(0,0,0,0.45)",
+                        boxShadow: `0 0 0 2px ${a.color}55, 0 2px 6px rgba(0,0,0,0.5)`,
+                      }}
+                    >
+                      {a.name.slice(0, 2)}
+                    </div>
+                    {a.lastActionType && ACTION_ICON[a.lastActionType] && (
+                      <div style={{ position: "absolute", top: -14, fontSize: 12, filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.6))" }}>
+                        {ACTION_ICON[a.lastActionType]}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 10 }}>
+              {[
+                { t: "floresta", note: "madeira, caça" },
+                { t: "rio", note: "água, peixe" },
+                { t: "aldeia", note: "centro" },
+                { t: "planicie", note: "plantações" },
+              ].map(({ t, note }) => (
+                <div key={t} className="mono" style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10, color: "var(--muted)" }}>
+                  <span style={{ width: 10, height: 10, borderRadius: 3, background: TERRAIN_STYLE[t].bg, boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.3)" }} />
+                  {TERRAIN_STYLE[t].label} · {note}
                 </div>
-                {a.lastActionType && ACTION_ICON[a.lastActionType] && (
-                  <div style={{ position: "absolute", top: -14, fontSize: 12 }}>{ACTION_ICON[a.lastActionType]}</div>
-                )}
-              </div>
-              );
-            })}
-          </div>
-          <div className="mono" style={{ color: "var(--muted)", fontSize: 11, marginTop: 8 }}>
-            🌳 floresta (madeira) · canto superior-esquerdo &nbsp;|&nbsp; 🚰 rio · canto inferior-direito &nbsp;|&nbsp; vila ao centro
+              ))}
+            </div>
           </div>
         </section>
 
