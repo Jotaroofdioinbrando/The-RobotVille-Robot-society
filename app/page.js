@@ -153,6 +153,46 @@ const ANIMAL_ICON = {
   javali: "🐗",
 };
 
+const ANIMAL_SPRITE = {
+  coelho: "/sprites/animals/coelho.png",
+  javali: "/sprites/animals/javali.png",
+};
+
+function AnimalSprite({ kind, size = TILE * 1.3 }) {
+  const src = ANIMAL_SPRITE[kind];
+  if (!src) {
+    return (
+      <div
+        style={{
+          fontSize: 13,
+          filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.6))",
+        }}
+      >
+        {ANIMAL_ICON[kind] || "🐾"}
+      </div>
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt={kind}
+      draggable={false}
+      style={{
+        position: "absolute",
+        bottom: 0,
+        left: "50%",
+        transform: "translateX(-50%)",
+        height: size,
+        width: "auto",
+        imageRendering: "pixelated",
+        pointerEvents: "none",
+        zIndex: 2,
+        filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.6)) drop-shadow(0 0 5px rgba(0,0,0,0.35))",
+      }}
+    />
+  );
+}
+
 function Bar({ value, color }) {
   return (
     <div className="bar-bg">
@@ -295,23 +335,7 @@ export default function Home() {
           )}
           {crop ? (crop.ready ? "🌾" : "🌱") : ""}
           {structure ? <StructureSprite type={structure.type} /> : ""}
-          {animal && (
-            <div
-              title={animal.kind}
-              style={{
-                position: "absolute",
-                bottom: 1,
-                left: "50%",
-                transform: "translateX(-50%)",
-                fontSize: 13,
-                zIndex: 2,
-                filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.6))",
-                pointerEvents: "none",
-              }}
-            >
-              {ANIMAL_ICON[animal.kind] || "🐾"}
-            </div>
-          )}
+          {animal && <AnimalSprite kind={animal.kind} size={TILE * 1.3} />}
         </div>
       );
     }
@@ -350,10 +374,10 @@ export default function Home() {
         }}
       >
         <div>
-          <div className="display" style={{ fontSize: 26, fontWeight: 700, letterSpacing: "0.06em", color: "var(--text)" }}>
+          <div className="pixel" style={{ fontSize: 20, color: "var(--text)" }}>
             ROBOT<span style={{ color: "var(--cyan)" }}>VILLE</span>
           </div>
-          <div className="mono" style={{ color: "var(--muted)", fontSize: 12 }}>
+          <div className="mono" style={{ color: "var(--muted)", fontSize: 12, marginTop: 4 }}>
             três agentes autônomos, três provedores de IA, uma vila de sobrevivência
           </div>
         </div>
@@ -373,7 +397,7 @@ export default function Home() {
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-              <div className="display" style={{ fontWeight: 700, fontSize: 14, color: "var(--cyan)" }}>
+              <div className="pixel" style={{ fontSize: 10, color: "var(--cyan)" }}>
                 Mapa de Robotville
               </div>
               <div className="mono" style={{ fontSize: 11, color: "var(--muted)", display: "flex", alignItems: "center", gap: 6 }}>
@@ -381,15 +405,15 @@ export default function Home() {
               </div>
             </div>
             <div
+              className="game-frame"
               style={{
                 display: "grid",
                 gridTemplateColumns: `repeat(${GRID_SIZE}, ${TILE}px)`,
                 gridTemplateRows: `repeat(${GRID_SIZE}, ${TILE}px)`,
                 position: "relative",
                 width: GRID_SIZE * TILE,
-                borderRadius: 8,
+                borderRadius: 3,
                 overflow: "hidden",
-                boxShadow: "0 0 0 1px var(--hairline-bright), 0 10px 24px -8px rgba(0,0,0,0.5)",
               }}
             >
               {tiles}
@@ -403,6 +427,29 @@ export default function Home() {
                   opacity: night ? 1 : 0,
                   transition: "opacity 1s ease",
                   zIndex: 1,
+                }}
+              />
+              {/* color grading — sutil, camada única e estática (sem animação = sem custo) */}
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  pointerEvents: "none",
+                  mixBlendMode: "soft-light",
+                  background: night
+                    ? "linear-gradient(155deg, rgba(90,70,190,0.5) 0%, rgba(20,25,60,0.35) 100%)"
+                    : "linear-gradient(155deg, rgba(255,190,120,0.28) 0%, rgba(40,60,50,0.22) 100%)",
+                  transition: "background 1s ease",
+                  zIndex: 1,
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  pointerEvents: "none",
+                  boxShadow: "inset 0 0 30px 6px rgba(0,0,0,0.4)",
+                  zIndex: 4,
                 }}
               />
               {lights.map((l) => (
@@ -548,7 +595,7 @@ export default function Home() {
 
         <section style={{ flex: "1 1 260px", minWidth: 260 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-            <div className="display" style={{ fontWeight: 700, color: "var(--gold)" }}>
+            <div className="pixel" style={{ fontSize: 10, color: "var(--gold)" }}>
               Registro do enxame
             </div>
             <button

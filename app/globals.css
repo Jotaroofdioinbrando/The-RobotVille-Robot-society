@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
 
 :root {
   --bg: #0c0f16;
@@ -37,6 +37,20 @@ body {
 .display {
   font-family: "Space Grotesk", sans-serif;
   letter-spacing: 0.02em;
+}
+.pixel {
+  font-family: "Silkscreen", "Space Grotesk", sans-serif;
+  letter-spacing: 0.03em;
+}
+
+/* ---------- game-window frame (Tibia/Terraria style UI border) ---------- */
+.game-frame {
+  border: 2px solid #0a0d13;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.12),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.5),
+    inset 0 2px 0 rgba(255, 255, 255, 0.08),
+    0 10px 24px -8px rgba(0, 0, 0, 0.6);
 }
 
 ::-webkit-scrollbar {
