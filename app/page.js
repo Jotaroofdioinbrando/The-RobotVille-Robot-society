@@ -381,8 +381,7 @@ export default function Home() {
           <div className="mono" style={{ color: "var(--muted)", fontSize: 12, marginTop: 4 }}>
             três agentes autônomos, três provedores de IA, uma vila de sobrevivência
           </div>
-        </div>
-        <div className="mono" style={{ color: "var(--muted)", fontSize: 12, textAlign: "right" }}>
+        </div>        <div className="mono" style={{ color: "var(--muted)", fontSize: 12, textAlign: "right" }}>
           <span style={{ color: "var(--gold)" }}>◆</span> {world ? `ciclo ${world.tick}` : "carregando..."}
           {error && <div style={{ color: "var(--danger)" }}>erro: {error}</div>}
         </div>
@@ -397,7 +396,7 @@ export default function Home() {
               display: "inline-block",
             }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
               <div className="pixel" style={{ fontSize: 10, color: "var(--cyan)" }}>
                 Mapa de Robotville
               </div>
@@ -405,6 +404,7 @@ export default function Home() {
                 <span>{night ? "🌙 noite" : "☀️ dia"}</span>
               </div>
             </div>
+            <div className="rpg-rule" />
             <div
               className="game-frame"
               style={{
@@ -417,6 +417,10 @@ export default function Home() {
                 overflow: "hidden",
               }}
             >
+              <span className="corner-bracket tl" />
+              <span className="corner-bracket tr" />
+              <span className="corner-bracket bl" />
+              <span className="corner-bracket br" />
               {tiles}
               <Starfield visible={night} />
               <div
@@ -615,6 +619,7 @@ export default function Home() {
             <div className="pixel" style={{ fontSize: 10, color: "var(--gold)" }}>
               Registro do enxame
             </div>
+
             <button
               onClick={() => {
                 const text = [...(world?.events || [])]

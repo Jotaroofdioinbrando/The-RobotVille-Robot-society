@@ -43,14 +43,39 @@ body {
   letter-spacing: 0.03em;
 }
 
-/* ---------- game-window frame (Tibia/Terraria style UI border) ---------- */
+/* ---------- game-window frame (Tibia/Terraria style UI border, com bisel) ---------- */
 .game-frame {
-  border: 2px solid #0a0d13;
+  border: 3px solid #0a0d13;
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.12),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.5),
-    inset 0 2px 0 rgba(255, 255, 255, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.14),
+    0 0 0 4px #1a2230,
+    0 0 0 5px rgba(255, 255, 255, 0.08),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.55),
+    inset 0 3px 0 rgba(255, 255, 255, 0.09),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.4),
     0 10px 24px -8px rgba(0, 0, 0, 0.6);
+}
+
+/* cantos tipo ferragem de HUD (Hollow Knight / Dead Cells / Tibia) */
+.corner-bracket {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  z-index: 6;
+  border-color: var(--gold);
+  opacity: 0.85;
+}
+.corner-bracket.tl { top: -3px; left: -3px; border-top: 2px solid; border-left: 2px solid; }
+.corner-bracket.tr { top: -3px; right: -3px; border-top: 2px solid; border-right: 2px solid; }
+.corner-bracket.bl { bottom: -3px; left: -3px; border-bottom: 2px solid; border-left: 2px solid; }
+.corner-bracket.br { bottom: -3px; right: -3px; border-bottom: 2px solid; border-right: 2px solid; }
+
+/* régua ornamental estilo janela de stats de RPG antigo */
+.rpg-rule {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--hairline-bright) 15%, var(--hairline-bright) 85%, transparent);
+  margin: 8px 0;
 }
 
 ::-webkit-scrollbar {
@@ -62,24 +87,29 @@ body {
   border-radius: 4px;
 }
 
-/* ---------- panels (no blur — cheap on mobile) ---------- */
+/* ---------- panels (no blur — cheap on mobile), bisel entalhado tipo janela de RPG ---------- */
 .glass-panel {
   background: var(--panel);
-  border: 1px solid var(--hairline);
-  border-radius: 14px;
-  box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.5);
+  border: 1px solid #05070c;
+  border-radius: 10px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+    0 10px 24px -10px rgba(0, 0, 0, 0.5);
 }
 
-/* ---------- bars ---------- */
+/* ---------- bars (estilo slot de HP/mana entalhado) ---------- */
 .bar-bg {
   background: rgba(0, 0, 0, 0.35);
-  border-radius: 6px;
+  border-radius: 3px;
   overflow: hidden;
   height: 7px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .bar-fill {
   height: 100%;
-  border-radius: 6px;
+  border-radius: 2px;
   transition: width 0.5s ease;
   position: relative;
 }
