@@ -6,10 +6,27 @@ import { GRID_SIZE, terrainAt, isNight } from "../lib/world";
 const TILE = 22;
 
 const TERRAIN_STYLE = {
-  aldeia: { bg: "linear-gradient(155deg, #4a3a28 0%, #372a1c 100%)", label: "vila" },
-  floresta: { bg: "linear-gradient(155deg, #1c3324 0%, #0f2117 100%)", label: "floresta" },
-  rio: { bg: "linear-gradient(155deg, #2a5f78 0%, #163a4a 100%)", label: "rio" },
-  planicie: { bg: "linear-gradient(155deg, #3d4a30 0%, #2c3722 100%)", label: "planície" },
+  aldeia: {
+    bg: "radial-gradient(120% 140% at 30% 0%, #6b5236 0%, #4a3a28 35%, #2b2113 100%)",
+    label: "vila",
+    accent: "#e5934f",
+  },
+  floresta: {
+    bg: "radial-gradient(120% 140% at 30% 0%, #2f523a 0%, #1c3324 40%, #0a150e 100%)",
+    label: "floresta",
+    accent: "#6fe37a",
+  },
+  rio: {
+    bg: "radial-gradient(120% 140% at 30% 0%, #4a92ad 0%, #2a5f78 40%, #0d222c 100%)",
+    label: "rio",
+    accent: "#6fe3f5",
+    water: true,
+  },
+  planicie: {
+    bg: "radial-gradient(120% 140% at 30% 0%, #5c6e45 0%, #3d4a30 40%, #1c2314 100%)",
+    label: "planície",
+    accent: "#ffcf7a",
+  },
 };
 
 const ACTION_ICON = {
@@ -75,6 +92,47 @@ const STRUCTURE_SPRITE = {
   santuario: "/sprites/structures/fogueira.png",
 };
 
+function Starfield({ visible }) {
+  // gerado uma vez, posições fixas — só a opacidade anima com o dia/noite
+  const stars = useRef(
+    Array.from({ length: 46 }, () => ({
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      s: Math.random() * 1.6 + 0.4,
+      d: Math.random() * 3,
+    }))
+  ).current;
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        pointerEvents: "none",
+        opacity: visible ? 1 : 0,
+        transition: "opacity 1.2s ease",
+        zIndex: 0,
+      }}
+    >
+      {stars.map((st, i) => (
+        <div
+          key={i}
+          style={{
+            position: "absolute",
+            left: `${st.x}%`,
+            top: `${st.y}%`,
+            width: st.s,
+            height: st.s,
+            borderRadius: "50%",
+            background: "#fff",
+            boxShadow: "0 0 4px rgba(255,255,255,0.8)",
+            animation: `twinkle ${2.4 + st.d}s ease-in-out ${st.d}s infinite`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 function StructureSprite({ type, size = TILE * 1.6 }) {
   const src = STRUCTURE_SPRITE[type];
   if (!src) return <>{STRUCTURE_ICON[type] || "🏗️"}</>;
@@ -108,7 +166,14 @@ const ANIMAL_ICON = {
 function Bar({ value, color }) {
   return (
     <div className="bar-bg">
-      <div className="bar-fill" style={{ width: `${Math.max(0, Math.min(100, value))}%`, background: color }} />
+      <div
+        className="bar-fill"
+        style={{
+          width: `${Math.max(0, Math.min(100, value))}%`,
+          background: `linear-gradient(90deg, ${color}cc, ${color})`,
+          color,
+        }}
+      />
     </div>
   );
 }
@@ -164,7 +229,9 @@ function AgentSprite({ agent, size = 34 }) {
         height: size,
         width: "auto",
         imageRendering: "pixelated",
-        filter: agent.alive ? "drop-shadow(0 2px 3px rgba(0,0,0,0.55))" : "grayscale(1) drop-shadow(0 2px 3px rgba(0,0,0,0.55))",
+        filter: agent.alive
+          ? `drop-shadow(0 3px 4px rgba(0,0,0,0.6)) drop-shadow(0 0 7px ${agent.color}99)`
+          : "grayscale(1) drop-shadow(0 2px 3px rgba(0,0,0,0.55))",
       }}
     />
   );
@@ -208,12 +275,15 @@ export default function Home() {
         <div
           key={`${x}-${y}`}
           title={`${style.label} (${x},${y})${structure ? ` — ${structure.type}` : ""}${animal ? ` — ${animal.kind}` : ""}`}
+          className={style.water ? "water-shimmer" : ""}
           style={{
             position: "relative",
             width: TILE,
             height: TILE,
-            background: style.bg,
-            boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.18)",
+            background: style.water
+              ? `${style.bg}, linear-gradient(120deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 35%, rgba(255,255,255,0.05) 60%, rgba(255,255,255,0) 100%)`
+              : style.bg,
+            boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.22), inset 0 8px 10px -6px rgba(255,255,255,0.06), inset 0 -6px 10px -4px rgba(0,0,0,0.4)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -262,6 +332,11 @@ export default function Home() {
     }
   }
 
+  const LIGHT_STRUCTURES = { fogueira: 1, santuario: 0.85, farol: 0.7, torre_sino: 0.4 };
+  const lights = (world?.structures || [])
+    .filter((s) => LIGHT_STRUCTURES[s.type])
+    .map((s) => ({ ...s, strength: LIGHT_STRUCTURES[s.type] }));
+
   const tileGroups = {};
   (world?.agents || []).forEach((a) => {
     const key = `${a.x},${a.y}`;
@@ -278,25 +353,28 @@ export default function Home() {
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <header
         style={{
-          padding: "16px 20px",
+          padding: "18px 24px",
           borderBottom: "1px solid var(--hairline)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "baseline",
           flexWrap: "wrap",
           gap: 8,
+          position: "relative",
+          background: "linear-gradient(180deg, rgba(20,26,40,0.55), transparent)",
+          backdropFilter: "blur(10px)",
         }}
       >
         <div>
-          <div className="display" style={{ fontSize: 22, fontWeight: 700 }}>
-            ROBOTVILLE
+          <div className="display title-glow" style={{ fontSize: 26, fontWeight: 700, letterSpacing: "0.06em", color: "var(--text)" }}>
+            ROBOT<span style={{ color: "var(--cyan)" }}>VILLE</span>
           </div>
           <div className="mono" style={{ color: "var(--muted)", fontSize: 12 }}>
             três agentes autônomos, três provedores de IA, uma vila de sobrevivência
           </div>
         </div>
         <div className="mono" style={{ color: "var(--muted)", fontSize: 12, textAlign: "right" }}>
-          {world ? `ciclo ${world.tick}` : "carregando..."}
+          <span style={{ color: "var(--gold)" }}>◆</span> {world ? `ciclo ${world.tick}` : "carregando..."}
           {error && <div style={{ color: "var(--danger)" }}>erro: {error}</div>}
         </div>
       </header>
@@ -304,16 +382,14 @@ export default function Home() {
       <main style={{ flex: 1, display: "flex", flexWrap: "wrap", gap: 20, padding: 20 }}>
         <section style={{ overflowX: "auto" }}>
           <div
+            className="glass-panel"
             style={{
-              background: "var(--panel)",
-              border: "1px solid var(--hairline)",
-              borderRadius: 12,
-              padding: 14,
+              padding: 16,
               display: "inline-block",
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-              <div className="display" style={{ fontWeight: 700, fontSize: 14 }}>
+              <div className="display" style={{ fontWeight: 700, fontSize: 14, color: "var(--cyan)", textShadow: "0 0 14px rgba(111,227,245,0.35)" }}>
                 Mapa de Robotville
               </div>
               <div className="mono" style={{ fontSize: 11, color: "var(--muted)", display: "flex", alignItems: "center", gap: 6 }}>
@@ -329,18 +405,49 @@ export default function Home() {
                 width: GRID_SIZE * TILE,
                 borderRadius: 8,
                 overflow: "hidden",
-                boxShadow: "0 0 0 1px var(--hairline), 0 8px 24px rgba(0,0,0,0.35)",
+                boxShadow:
+                  "0 0 0 1px var(--hairline-bright), 0 18px 44px rgba(0,0,0,0.55), 0 0 60px -12px rgba(111,227,245,0.18), inset 0 0 40px rgba(0,0,0,0.35)",
               }}
             >
               {tiles}
+              <Starfield visible={night} />
               <div
                 style={{
                   position: "absolute",
                   inset: 0,
                   pointerEvents: "none",
-                  background: "linear-gradient(155deg, rgba(20,30,55,0.38), rgba(10,14,26,0.5))",
+                  background:
+                    "radial-gradient(140% 100% at 50% -10%, rgba(80,110,180,0.22), transparent 55%), linear-gradient(155deg, rgba(14,20,40,0.55), rgba(6,8,16,0.72))",
                   opacity: night ? 1 : 0,
                   transition: "opacity 1.2s ease",
+                  zIndex: 1,
+                }}
+              />
+              {lights.map((l) => (
+                <div
+                  key={`light-${l.x}-${l.y}-${l.type}`}
+                  className="ember-flicker"
+                  style={{
+                    position: "absolute",
+                    left: l.x * TILE + TILE / 2 - TILE * 2.2,
+                    top: l.y * TILE + TILE / 2 - TILE * 2.2,
+                    width: TILE * 4.4,
+                    height: TILE * 4.4,
+                    borderRadius: "50%",
+                    background: `radial-gradient(circle, rgba(255,190,120,${0.85 * l.strength}) 0%, rgba(255,138,61,${0.4 * l.strength}) 30%, transparent 70%)`,
+                    mixBlendMode: "screen",
+                    pointerEvents: "none",
+                    zIndex: 3,
+                  }}
+                />
+              ))}
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  pointerEvents: "none",
+                  boxShadow: "inset 0 0 46px 10px rgba(0,0,0,0.45)",
+                  zIndex: 4,
                 }}
               />
               {world?.agents?.map((a) => {
@@ -364,20 +471,35 @@ export default function Home() {
                       transition: "left 0.6s ease, top 0.6s ease",
                       opacity: a.alive ? 1 : 0.4,
                       filter: a.alive ? "none" : "grayscale(1)",
+                      zIndex: 5,
                     }}
                   >
                     <div
                       style={{
                         position: "absolute",
-                        width: 26,
-                        height: 26,
+                        bottom: -2,
+                        width: 20,
+                        height: 7,
                         borderRadius: "50%",
-                        background: `radial-gradient(circle, ${a.color}40 0%, transparent 70%)`,
+                        background: "rgba(0,0,0,0.45)",
+                        filter: "blur(2px)",
                       }}
                     />
-                    <AgentSprite agent={a} size={34} />
+                    <div
+                      style={{
+                        position: "absolute",
+                        width: 34,
+                        height: 34,
+                        borderRadius: "50%",
+                        background: `radial-gradient(circle, ${a.color}55 0%, ${a.color}22 45%, transparent 72%)`,
+                        mixBlendMode: "screen",
+                      }}
+                    />
+                    <div className={a.alive ? "float-bob" : ""} style={{ position: "relative" }}>
+                      <AgentSprite agent={a} size={34} />
+                    </div>
                     {a.lastActionType && ACTION_ICON[a.lastActionType] && (
-                      <div style={{ position: "absolute", top: -12, fontSize: 12, filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.6))" }}>
+                      <div style={{ position: "absolute", top: -14, fontSize: 13, filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.7)) drop-shadow(0 0 6px rgba(255,255,255,0.25))" }}>
                         {ACTION_ICON[a.lastActionType]}
                       </div>
                     )}
@@ -405,31 +527,31 @@ export default function Home() {
           {world?.agents?.map((a) => (
             <div
               key={a.id}
+              className="glass-panel hover-lift"
               style={{
-                background: "var(--panel)",
-                border: `1px solid ${a.alive ? "var(--hairline)" : "var(--danger)"}`,
-                borderRadius: 10,
-                padding: 12,
+                borderColor: a.alive ? "var(--hairline)" : "var(--danger)",
+                padding: 13,
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div
                     style={{
-                      width: 30,
-                      height: 30,
-                      borderRadius: 8,
-                      background: "rgba(0,0,0,0.25)",
+                      width: 32,
+                      height: 32,
+                      borderRadius: 9,
+                      background: `radial-gradient(circle, ${a.color}33, rgba(0,0,0,0.3))`,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       overflow: "hidden",
                       flexShrink: 0,
+                      boxShadow: `inset 0 0 0 1px ${a.color}55, 0 0 10px ${a.color}33`,
                     }}
                   >
                     <AgentSprite agent={a} size={30} />
                   </div>
-                  <div className="display" style={{ fontWeight: 700, color: a.color }}>
+                  <div className="display" style={{ fontWeight: 700, color: a.color, textShadow: `0 0 12px ${a.color}55` }}>
                     {a.name} {!a.alive && "☠️"}
                   </div>
                 </div>
@@ -465,7 +587,7 @@ export default function Home() {
 
         <section style={{ flex: "1 1 260px", minWidth: 260 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-            <div className="display" style={{ fontWeight: 700 }}>
+            <div className="display" style={{ fontWeight: 700, color: "var(--gold)", textShadow: "0 0 14px rgba(255,207,122,0.3)" }}>
               Registro do enxame
             </div>
             <button
@@ -480,12 +602,12 @@ export default function Home() {
                   .catch(() => setCopyStatus("Falhou ao copiar"));
                 setTimeout(() => setCopyStatus(null), 2000);
               }}
-              className="mono"
+              className="mono hover-lift"
               style={{
                 fontSize: 11,
-                padding: "4px 10px",
-                borderRadius: 6,
-                background: "var(--panel)",
+                padding: "5px 12px",
+                borderRadius: 7,
+                background: "var(--panel-raised)",
                 border: "1px solid var(--hairline)",
                 color: "var(--text)",
                 cursor: "pointer",
@@ -495,10 +617,8 @@ export default function Home() {
             </button>
           </div>
           <div
+            className="glass-panel"
             style={{
-              background: "var(--panel)",
-              border: "1px solid var(--hairline)",
-              borderRadius: 10,
               padding: 12,
               maxHeight: 480,
               overflowY: "auto",
