@@ -162,6 +162,7 @@ export default function Home() {
           key={`${x}-${y}`}
           title={`${style.label} (${x},${y})${structure ? ` — ${structure.type}` : ""}`}
           style={{
+            position: "relative",
             width: TILE,
             height: TILE,
             background: style.bg,
@@ -172,7 +173,24 @@ export default function Home() {
             fontSize: 12,
           }}
         >
-          {t === "floresta" && tree && tree.wood > 0 ? "🌳" : ""}
+          {t === "floresta" && tree && (
+            <img
+              src={tree.wood > 0 ? "/sprites/tree.png" : "/sprites/stump.png"}
+              alt={tree.wood > 0 ? "árvore" : "toco"}
+              draggable={false}
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: "50%",
+                transform: "translateX(-50%)",
+                height: tree.wood > 0 ? TILE * 1.7 : TILE * 0.9,
+                width: "auto",
+                imageRendering: "pixelated",
+                pointerEvents: "none",
+                zIndex: 1,
+              }}
+            />
+          )}
           {crop ? (crop.ready ? "🌾" : "🌱") : ""}
           {structure ? STRUCTURE_ICON[structure.type] || "🏗️" : ""}
         </div>
