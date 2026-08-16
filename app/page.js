@@ -59,6 +59,52 @@ const STRUCTURE_ICON = {
   cais: "⚓",
 };
 
+// Sprites pixel-art (gerados por IA) pra algumas estruturas. Estruturas sem sprite próprio
+// caem de volta pro emoji do STRUCTURE_ICON.
+const STRUCTURE_SPRITE = {
+  poco: "/sprites/structures/poco.png",
+  cerca: "/sprites/structures/cerca.png",
+  muralha: "/sprites/structures/muralha.png",
+  abrigo: "/sprites/structures/abrigo.png",
+  tenda: "/sprites/structures/abrigo.png",
+  curral: "/sprites/structures/abrigo.png",
+  estabulo: "/sprites/structures/abrigo.png",
+  enfermaria: "/sprites/structures/abrigo.png",
+  casa: "/sprites/structures/casa.png",
+  fogueira: "/sprites/structures/fogueira.png",
+  santuario: "/sprites/structures/fogueira.png",
+};
+
+function StructureSprite({ type, size = TILE * 1.6 }) {
+  const src = STRUCTURE_SPRITE[type];
+  if (!src) return <>{STRUCTURE_ICON[type] || "🏗️"}</>;
+  return (
+    <img
+      src={src}
+      alt={type}
+      draggable={false}
+      style={{
+        position: "absolute",
+        bottom: 0,
+        left: "50%",
+        transform: "translateX(-50%)",
+        height: size,
+        width: "auto",
+        imageRendering: "pixelated",
+        pointerEvents: "none",
+        zIndex: 1,
+        filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.5))",
+      }}
+    />
+  );
+}
+
+const ANIMAL_ICON = {
+  coelho: "🐇",
+  veado: "🦌",
+  javali: "🐗",
+};
+
 function Bar({ value, color }) {
   return (
     <div className="bar-bg">
@@ -157,10 +203,11 @@ export default function Home() {
       const tree = world?.trees?.[`${x},${y}`];
       const crop = world?.crops?.find((c) => c.x === x && c.y === y);
       const structure = world?.structures?.find((s) => s.x === x && s.y === y);
+      const animal = world?.animals?.find((an) => an.x === x && an.y === y);
       tiles.push(
         <div
           key={`${x}-${y}`}
-          title={`${style.label} (${x},${y})${structure ? ` — ${structure.type}` : ""}`}
+          title={`${style.label} (${x},${y})${structure ? ` — ${structure.type}` : ""}${animal ? ` — ${animal.kind}` : ""}`}
           style={{
             position: "relative",
             width: TILE,
@@ -192,7 +239,24 @@ export default function Home() {
             />
           )}
           {crop ? (crop.ready ? "🌾" : "🌱") : ""}
-          {structure ? STRUCTURE_ICON[structure.type] || "🏗️" : ""}
+          {structure ? <StructureSprite type={structure.type} /> : ""}
+          {animal && (
+            <div
+              title={animal.kind}
+              style={{
+                position: "absolute",
+                bottom: 1,
+                left: "50%",
+                transform: "translateX(-50%)",
+                fontSize: 13,
+                zIndex: 2,
+                filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.6))",
+                pointerEvents: "none",
+              }}
+            >
+              {ANIMAL_ICON[animal.kind] || "🐾"}
+            </div>
+          )}
         </div>
       );
     }
