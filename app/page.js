@@ -93,26 +93,17 @@ const STRUCTURE_SPRITE = {
 };
 
 function Starfield({ visible }) {
-  // gerado uma vez, posições fixas — só a opacidade anima com o dia/noite
   const stars = useRef(
-    Array.from({ length: 46 }, () => ({
+    Array.from({ length: 18 }, () => ({
       x: Math.random() * 100,
       y: Math.random() * 100,
-      s: Math.random() * 1.6 + 0.4,
+      s: Math.random() * 1.4 + 0.5,
       d: Math.random() * 3,
     }))
   ).current;
+  if (!visible) return null;
   return (
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        pointerEvents: "none",
-        opacity: visible ? 1 : 0,
-        transition: "opacity 1.2s ease",
-        zIndex: 0,
-      }}
-    >
+    <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0 }}>
       {stars.map((st, i) => (
         <div
           key={i}
@@ -124,8 +115,7 @@ function Starfield({ visible }) {
             height: st.s,
             borderRadius: "50%",
             background: "#fff",
-            boxShadow: "0 0 4px rgba(255,255,255,0.8)",
-            animation: `twinkle ${2.4 + st.d}s ease-in-out ${st.d}s infinite`,
+            animation: `twinkle ${2.6 + st.d}s ease-in-out ${st.d}s infinite`,
           }}
         />
       ))}
@@ -229,9 +219,7 @@ function AgentSprite({ agent, size = 34 }) {
         height: size,
         width: "auto",
         imageRendering: "pixelated",
-        filter: agent.alive
-          ? `drop-shadow(0 3px 4px rgba(0,0,0,0.6)) drop-shadow(0 0 7px ${agent.color}99)`
-          : "grayscale(1) drop-shadow(0 2px 3px rgba(0,0,0,0.55))",
+        filter: agent.alive ? "drop-shadow(0 2px 3px rgba(0,0,0,0.55))" : "grayscale(1) drop-shadow(0 2px 3px rgba(0,0,0,0.55))",
       }}
     />
   );
@@ -275,15 +263,12 @@ export default function Home() {
         <div
           key={`${x}-${y}`}
           title={`${style.label} (${x},${y})${structure ? ` — ${structure.type}` : ""}${animal ? ` — ${animal.kind}` : ""}`}
-          className={style.water ? "water-shimmer" : ""}
           style={{
             position: "relative",
             width: TILE,
             height: TILE,
-            background: style.water
-              ? `${style.bg}, linear-gradient(120deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 35%, rgba(255,255,255,0.05) 60%, rgba(255,255,255,0) 100%)`
-              : style.bg,
-            boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.22), inset 0 8px 10px -6px rgba(255,255,255,0.06), inset 0 -6px 10px -4px rgba(0,0,0,0.4)",
+            background: style.bg,
+            boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.22)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -361,12 +346,11 @@ export default function Home() {
           flexWrap: "wrap",
           gap: 8,
           position: "relative",
-          background: "linear-gradient(180deg, rgba(20,26,40,0.55), transparent)",
-          backdropFilter: "blur(10px)",
+          background: "rgba(18,24,38,0.7)",
         }}
       >
         <div>
-          <div className="display title-glow" style={{ fontSize: 26, fontWeight: 700, letterSpacing: "0.06em", color: "var(--text)" }}>
+          <div className="display" style={{ fontSize: 26, fontWeight: 700, letterSpacing: "0.06em", color: "var(--text)" }}>
             ROBOT<span style={{ color: "var(--cyan)" }}>VILLE</span>
           </div>
           <div className="mono" style={{ color: "var(--muted)", fontSize: 12 }}>
@@ -389,7 +373,7 @@ export default function Home() {
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-              <div className="display" style={{ fontWeight: 700, fontSize: 14, color: "var(--cyan)", textShadow: "0 0 14px rgba(111,227,245,0.35)" }}>
+              <div className="display" style={{ fontWeight: 700, fontSize: 14, color: "var(--cyan)" }}>
                 Mapa de Robotville
               </div>
               <div className="mono" style={{ fontSize: 11, color: "var(--muted)", display: "flex", alignItems: "center", gap: 6 }}>
@@ -405,8 +389,7 @@ export default function Home() {
                 width: GRID_SIZE * TILE,
                 borderRadius: 8,
                 overflow: "hidden",
-                boxShadow:
-                  "0 0 0 1px var(--hairline-bright), 0 18px 44px rgba(0,0,0,0.55), 0 0 60px -12px rgba(111,227,245,0.18), inset 0 0 40px rgba(0,0,0,0.35)",
+                boxShadow: "0 0 0 1px var(--hairline-bright), 0 10px 24px -8px rgba(0,0,0,0.5)",
               }}
             >
               {tiles}
@@ -416,10 +399,9 @@ export default function Home() {
                   position: "absolute",
                   inset: 0,
                   pointerEvents: "none",
-                  background:
-                    "radial-gradient(140% 100% at 50% -10%, rgba(80,110,180,0.22), transparent 55%), linear-gradient(155deg, rgba(14,20,40,0.55), rgba(6,8,16,0.72))",
+                  background: "rgba(8,12,24,0.62)",
                   opacity: night ? 1 : 0,
-                  transition: "opacity 1.2s ease",
+                  transition: "opacity 1s ease",
                   zIndex: 1,
                 }}
               />
@@ -429,27 +411,17 @@ export default function Home() {
                   className="ember-flicker"
                   style={{
                     position: "absolute",
-                    left: l.x * TILE + TILE / 2 - TILE * 2.2,
-                    top: l.y * TILE + TILE / 2 - TILE * 2.2,
-                    width: TILE * 4.4,
-                    height: TILE * 4.4,
+                    left: l.x * TILE + TILE / 2 - TILE * 1.8,
+                    top: l.y * TILE + TILE / 2 - TILE * 1.8,
+                    width: TILE * 3.6,
+                    height: TILE * 3.6,
                     borderRadius: "50%",
-                    background: `radial-gradient(circle, rgba(255,190,120,${0.85 * l.strength}) 0%, rgba(255,138,61,${0.4 * l.strength}) 30%, transparent 70%)`,
-                    mixBlendMode: "screen",
+                    background: `radial-gradient(circle, rgba(255,180,110,${0.5 * l.strength}) 0%, transparent 70%)`,
                     pointerEvents: "none",
                     zIndex: 3,
                   }}
                 />
               ))}
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  pointerEvents: "none",
-                  boxShadow: "inset 0 0 46px 10px rgba(0,0,0,0.45)",
-                  zIndex: 4,
-                }}
-              />
               {world?.agents?.map((a) => {
                 const key = `${a.x},${a.y}`;
                 const group = tileGroups[key] || [a.id];
@@ -478,28 +450,17 @@ export default function Home() {
                       style={{
                         position: "absolute",
                         bottom: -2,
-                        width: 20,
-                        height: 7,
+                        width: 18,
+                        height: 6,
                         borderRadius: "50%",
-                        background: "rgba(0,0,0,0.45)",
-                        filter: "blur(2px)",
-                      }}
-                    />
-                    <div
-                      style={{
-                        position: "absolute",
-                        width: 34,
-                        height: 34,
-                        borderRadius: "50%",
-                        background: `radial-gradient(circle, ${a.color}55 0%, ${a.color}22 45%, transparent 72%)`,
-                        mixBlendMode: "screen",
+                        background: "rgba(0,0,0,0.4)",
                       }}
                     />
                     <div className={a.alive ? "float-bob" : ""} style={{ position: "relative" }}>
                       <AgentSprite agent={a} size={34} />
                     </div>
                     {a.lastActionType && ACTION_ICON[a.lastActionType] && (
-                      <div style={{ position: "absolute", top: -14, fontSize: 13, filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.7)) drop-shadow(0 0 6px rgba(255,255,255,0.25))" }}>
+                      <div style={{ position: "absolute", top: -14, fontSize: 13, filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.7))" }}>
                         {ACTION_ICON[a.lastActionType]}
                       </div>
                     )}
@@ -546,12 +507,12 @@ export default function Home() {
                       justifyContent: "center",
                       overflow: "hidden",
                       flexShrink: 0,
-                      boxShadow: `inset 0 0 0 1px ${a.color}55, 0 0 10px ${a.color}33`,
+                      boxShadow: `inset 0 0 0 1px ${a.color}55`,
                     }}
                   >
                     <AgentSprite agent={a} size={30} />
                   </div>
-                  <div className="display" style={{ fontWeight: 700, color: a.color, textShadow: `0 0 12px ${a.color}55` }}>
+                  <div className="display" style={{ fontWeight: 700, color: a.color }}>
                     {a.name} {!a.alive && "☠️"}
                   </div>
                 </div>
@@ -587,7 +548,7 @@ export default function Home() {
 
         <section style={{ flex: "1 1 260px", minWidth: 260 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-            <div className="display" style={{ fontWeight: 700, color: "var(--gold)", textShadow: "0 0 14px rgba(255,207,122,0.3)" }}>
+            <div className="display" style={{ fontWeight: 700, color: "var(--gold)" }}>
               Registro do enxame
             </div>
             <button

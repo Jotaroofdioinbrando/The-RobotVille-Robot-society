@@ -1,20 +1,17 @@
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
 
 :root {
   --bg: #0c0f16;
-  --bg-glow-1: #1a2440;
-  --bg-glow-2: #2a1830;
-  --panel: rgba(28, 36, 52, 0.55);
-  --panel-raised: rgba(42, 54, 74, 0.65);
+  --panel: rgba(30, 38, 54, 0.92);
+  --panel-raised: rgba(42, 54, 74, 0.95);
   --hairline: rgba(237, 231, 221, 0.1);
-  --hairline-bright: rgba(255, 255, 255, 0.22);
+  --hairline-bright: rgba(255, 255, 255, 0.18);
   --text: #f1ede3;
   --muted: #8fa0b3;
   --copper: #e5934f;
   --cyan: #6fe3f5;
   --gold: #ffcf7a;
   --danger: #ff6b6b;
-  --ember: #ff8a3d;
 }
 
 * {
@@ -29,23 +26,9 @@ body {
   color: var(--text);
   font-family: "Inter", sans-serif;
   background:
-    radial-gradient(1100px 700px at 12% -10%, rgba(111, 227, 245, 0.10), transparent 60%),
-    radial-gradient(900px 620px at 100% 0%, rgba(255, 138, 61, 0.08), transparent 55%),
-    radial-gradient(1200px 900px at 50% 120%, rgba(80, 60, 140, 0.14), transparent 60%),
-    linear-gradient(180deg, #0a0d13 0%, #0d1119 45%, #0b0e15 100%);
-  background-attachment: fixed;
-  position: relative;
-}
-
-body::before {
-  /* faint film-grain / noise so gradients don't band, adds a "rendered" texture */
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    radial-gradient(900px 600px at 15% 0%, rgba(111, 227, 245, 0.06), transparent 60%),
+    radial-gradient(800px 550px at 100% 10%, rgba(255, 138, 61, 0.05), transparent 55%),
+    #0a0d13;
 }
 
 .mono {
@@ -57,41 +40,20 @@ body::before {
 }
 
 ::-webkit-scrollbar {
-  width: 9px;
-  height: 9px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(111, 227, 245, 0.35), rgba(255, 138, 61, 0.35));
-  border-radius: 6px;
+  background: var(--panel-raised);
+  border-radius: 4px;
 }
 
-/* ---------- glass panels ---------- */
+/* ---------- panels (no blur — cheap on mobile) ---------- */
 .glass-panel {
   background: var(--panel);
   border: 1px solid var(--hairline);
   border-radius: 14px;
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    inset 0 0 40px rgba(111, 227, 245, 0.03),
-    0 18px 40px -12px rgba(0, 0, 0, 0.6);
-  position: relative;
-}
-.glass-panel::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(155deg, rgba(255, 255, 255, 0.14), transparent 40%, rgba(111, 227, 245, 0.08));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
+  box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.5);
 }
 
 /* ---------- bars ---------- */
@@ -100,83 +62,47 @@ body::before {
   border-radius: 6px;
   overflow: hidden;
   height: 7px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 .bar-fill {
   height: 100%;
   border-radius: 6px;
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.5s ease;
   position: relative;
-  box-shadow: 0 0 10px currentColor;
-}
-.bar-fill::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), transparent 55%);
-  border-radius: inherit;
 }
 
-/* ---------- animations ---------- */
+/* ---------- animations (kept minimal, few elements only) ---------- */
 @keyframes pulse-dot {
-  0%, 100% { opacity: 0.55; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.25); }
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
 }
 .pulse-dot {
-  animation: pulse-dot 1.6s ease-in-out infinite;
-  transform-origin: center;
+  animation: pulse-dot 1.8s ease-in-out infinite;
 }
 
 @keyframes float-bob {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
+  50% { transform: translateY(-2px); }
 }
 .float-bob {
-  animation: float-bob 2.6s ease-in-out infinite;
+  animation: float-bob 2.8s ease-in-out infinite;
 }
 
 @keyframes ember-flicker {
-  0%, 100% { opacity: 0.85; transform: scale(1); filter: brightness(1); }
-  30% { opacity: 1; transform: scale(1.08); filter: brightness(1.25); }
-  60% { opacity: 0.7; transform: scale(0.96); filter: brightness(0.9); }
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1; }
 }
 .ember-flicker {
-  animation: ember-flicker 1.8s ease-in-out infinite;
-}
-
-@keyframes water-shimmer {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-.water-shimmer {
-  background-size: 250% 250%;
-  animation: water-shimmer 6s ease-in-out infinite;
+  animation: ember-flicker 2s ease-in-out infinite;
 }
 
 @keyframes twinkle {
-  0%, 100% { opacity: 0.15; }
-  50% { opacity: 0.9; }
-}
-
-@keyframes title-glow {
-  0%, 100% { text-shadow: 0 0 18px rgba(111, 227, 245, 0.55), 0 0 40px rgba(255, 138, 61, 0.18); }
-  50% { text-shadow: 0 0 28px rgba(111, 227, 245, 0.85), 0 0 60px rgba(255, 138, 61, 0.32); }
-}
-.title-glow {
-  animation: title-glow 4s ease-in-out infinite;
-}
-
-@keyframes drift {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(-60px, -40px); }
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.85; }
 }
 
 .hover-lift {
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  transition: border-color 0.2s ease;
 }
 .hover-lift:hover {
-  transform: translateY(-2px);
   border-color: var(--hairline-bright);
-  box-shadow: 0 14px 30px -10px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(111, 227, 245, 0.15);
 }
