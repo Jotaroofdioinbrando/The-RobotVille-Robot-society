@@ -232,9 +232,9 @@ function RobotIcon({ color, alive }) {
 
 // Sprites pixel-art (gerados por IA) pra cada agente. A busca é por substring
 // no id/nome do agente, então funciona não importa a capitalização exata que
-// vier do backend (ex: "cerebras", "CEREBRAS", "vila1-cerebras" etc.).
+// vier do backend (ex: "openrouter", "OPENROUTER", "vila1-openrouter" etc.).
 const SPRITE_BY_KEY = {
-  cerebras: "/sprites/cerebras.png",
+  openrouter: "/sprites/openrouter.png",
   mistral: "/sprites/mistral.png",
   gemini: "/sprites/gemini.png",
 };
