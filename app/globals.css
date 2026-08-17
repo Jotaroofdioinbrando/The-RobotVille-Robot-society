@@ -144,6 +144,40 @@ body {
   50% { opacity: 0.85; }
 }
 
+/* ---------- "ray tracing" simulado: luz dinâmica, barata pro celular ----------
+   só usa transform (translate/rotate) — isso roda direto na GPU como uma camada
+   composta, sem forçar reflow/repaint a cada frame, diferente de animar
+   background-position ou width em várias tiles ao mesmo tempo. */
+@keyframes sun-sweep {
+  0%   { transform: translate(-10%, -8%) rotate(0deg); }
+  50%  { transform: translate(8%, 6%) rotate(2deg); }
+  100% { transform: translate(-10%, -8%) rotate(0deg); }
+}
+.sun-sweep {
+  animation: sun-sweep 22s ease-in-out infinite;
+  will-change: transform;
+}
+
+.specular-glint {
+  position: absolute;
+  width: 40%;
+  height: 40%;
+  top: 4%;
+  left: 18%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 70%);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+.water-reflect {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.10) 45%, rgba(255,255,255,0.02) 55%, transparent 70%);
+  mix-blend-mode: overlay;
+}
+
 .hover-lift {
   transition: border-color 0.2s ease;
 }

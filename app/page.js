@@ -316,6 +316,7 @@ export default function Home() {
             fontSize: 12,
           }}
         >
+          {style.water && <div className="water-reflect" />}
           {t === "floresta" && tree && (
             <img
               src={tree.wood > 0 ? "/sprites/tree.png" : "/sprites/stump.png"}
@@ -457,6 +458,23 @@ export default function Home() {
                   zIndex: 4,
                 }}
               />
+              {/* "sol" rodando devagar — só 1 elemento, só transform (GPU), simula luz global se movendo */}
+              <div
+                className="sun-sweep"
+                style={{
+                  position: "absolute",
+                  top: "-25%",
+                  left: "-25%",
+                  width: "150%",
+                  height: "150%",
+                  pointerEvents: "none",
+                  mixBlendMode: "soft-light",
+                  background: night
+                    ? "radial-gradient(circle at 30% 30%, rgba(170,190,255,0.35) 0%, transparent 45%)"
+                    : "radial-gradient(circle at 30% 30%, rgba(255,240,200,0.45) 0%, transparent 45%)",
+                  zIndex: 2,
+                }}
+              />
               {lights.map((l) => (
                 <div
                   key={`light-${l.x}-${l.y}-${l.type}`}
@@ -510,6 +528,7 @@ export default function Home() {
                     />
                     <div className={a.alive ? "float-bob" : ""} style={{ position: "relative" }}>
                       <AgentSprite agent={a} size={34} />
+                      {a.alive && <div className="specular-glint" />}
                     </div>
                     {a.lastActionType && ACTION_ICON[a.lastActionType] && (
                       <div style={{ position: "absolute", top: -14, fontSize: 13, filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.7))" }}>
