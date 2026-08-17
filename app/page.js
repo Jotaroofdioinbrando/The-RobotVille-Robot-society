@@ -535,6 +535,46 @@ export default function Home() {
                         {ACTION_ICON[a.lastActionType]}
                       </div>
                     )}
+                    {a.alive && a.lastMessage && world && a.lastMessageTick === world.tick && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          bottom: "100%",
+                          left: "50%",
+                          transform: "translateX(-50%)",
+                          marginBottom: 6,
+                          maxWidth: 150,
+                          background: "rgba(20,26,38,0.94)",
+                          color: "var(--text)",
+                          border: `1px solid ${a.color}88`,
+                          borderRadius: 10,
+                          padding: "5px 9px",
+                          fontSize: 10,
+                          lineHeight: 1.3,
+                          textAlign: "center",
+                          whiteSpace: "normal",
+                          boxShadow: "0 4px 10px rgba(0,0,0,0.45)",
+                          zIndex: 20,
+                          pointerEvents: "none",
+                        }}
+                        className="mono"
+                      >
+                        {a.lastMessage.length > 90 ? `${a.lastMessage.slice(0, 90)}…` : a.lastMessage}
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: "100%",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            width: 0,
+                            height: 0,
+                            borderLeft: "5px solid transparent",
+                            borderRight: "5px solid transparent",
+                            borderTop: "5px solid rgba(20,26,38,0.94)",
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
                 );
               })}
