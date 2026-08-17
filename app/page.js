@@ -383,7 +383,7 @@ export default function Home() {
             três agentes autônomos, três provedores de IA, uma vila de sobrevivência
           </div>
         </div>        <div className="mono" style={{ color: "var(--muted)", fontSize: 12, textAlign: "right" }}>
-          <span style={{ color: "var(--gold)" }}>◆</span> {world ? `ciclo ${world.tick}` : "carregando..."}
+          <span style={{ color: "var(--gold)" }}>◆</span> {world ? `ciclo ${Math.floor(world.tick)}` : "carregando..."}
           {error && <div style={{ color: "var(--danger)" }}>erro: {error}</div>}
         </div>
       </header>
