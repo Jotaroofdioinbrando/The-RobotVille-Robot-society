@@ -300,10 +300,12 @@ export default function Home() {
       const crop = world?.crops?.find((c) => c.x === x && c.y === y);
       const structure = world?.structures?.find((s) => s.x === x && s.y === y);
       const animal = world?.animals?.find((an) => an.x === x && an.y === y);
+      const mega = world?.megafauna?.find((m) => m.x === x && m.y === y);
+      const trap = world?.traps?.find((tr) => tr.x === x && tr.y === y);
       tiles.push(
         <div
           key={`${x}-${y}`}
-          title={`${style.label} (${x},${y})${structure ? ` — ${structure.type}` : ""}${animal ? ` — ${animal.kind}` : ""}`}
+          title={`${style.label} (${x},${y})${structure ? ` — ${structure.type}` : ""}${animal ? ` — ${animal.kind}` : ""}${mega ? ` — FERA: ${mega.kind} (${mega.hp}/${mega.maxHp} HP)${mega.trappedUntil ? " PRESA" : ""}` : ""}${trap ? ` — armadilha de ${trap.builtBy}` : ""}`}
           style={{
             position: "relative",
             width: TILE,
@@ -338,6 +340,27 @@ export default function Home() {
           {crop ? (crop.ready ? "🌾" : "🌱") : ""}
           {structure ? <StructureSprite type={structure.type} /> : ""}
           {animal && <AnimalSprite kind={animal.kind} size={TILE * 1.3} />}
+          {trap && (
+            <div style={{ position: "absolute", bottom: 1, right: 1, fontSize: 11, zIndex: 2, filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.8))" }}>
+              🪤
+            </div>
+          )}
+          {mega && (
+            <div
+              className={mega.trappedUntil ? "" : "float-bob"}
+              style={{
+                position: "absolute",
+                fontSize: TILE * 1.1,
+                zIndex: 6,
+                filter: mega.trappedUntil
+                  ? "drop-shadow(0 2px 4px rgba(0,0,0,0.8)) grayscale(0.3)"
+                  : "drop-shadow(0 2px 4px rgba(0,0,0,0.8))",
+              }}
+              title={`${mega.kind} — ${mega.hp}/${mega.maxHp} HP`}
+            >
+              🐻
+            </div>
+          )}
         </div>
       );
     }
